@@ -8,4 +8,4 @@ class MicrosoftTenantAdmin(admin.ModelAdmin):
 
 @admin.register(MicrosoftUser)
 class MicrosoftUserAdmin(admin.ModelAdmin):
-    list_display = ('name', 'preferred_username', 'oid', 'tenant')
+    list_display = ('user', 'name', 'preferred_username', 'oid', 'tenant')

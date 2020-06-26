@@ -6,6 +6,17 @@ from django.db import migrations
 
 from django_msal.models import MicrosoftUser
 
+
+def add_microsoft_tenant(apps, schema_editor):
+    MicrosoftTenant = apps.get_model('django_msal', 'MicrosoftTenant')
+    try:
+        MicrosoftTenant.objects.get(tid=settings.DJANGO_MSAL_PRIMARY_TENANT_ID)
+    except:
+        MicrosoftTenant.objects.create(
+            tid=settings.DJANGO_MSAL_PRIMARY_TENANT_ID,
+            name=settings.DJANGO_MSAL_PRIMARY_TENANT_NAME
+        )
+
 def add_microsoft_user_to_existing_users(apps, schema_editor):
     User = apps.get_model(settings.AUTH_USER_MODEL)
     MicrosoftUser = apps.get_model('django_msal', 'MicrosoftUser')
@@ -23,5 +34,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(add_microsoft_tenant),
         migrations.RunPython(add_microsoft_user_to_existing_users),
     ]

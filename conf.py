@@ -18,9 +18,22 @@ try:
 except AttributeError:
     raise ImproperlyConfigured('DJANGO_MSAL_REDIRECT_DOMAIN is a required setting')
 
+try:
+    DJANGO_MSAL_PRIMARY_TENANT_ID = settings.DJANGO_MSAL_PRIMARY_TENANT_ID
+except AttributeError:
+    raise ImproperlyConfigured('DJANGO_MSAL_PRIMARY_TENANT_ID is a required setting')
+
+try:
+    DJANGO_MSAL_PRIMARY_TENANT_NAME = settings.DJANGO_MSAL_PRIMARY_TENANT_NAME
+except AttributeError:
+    raise ImproperlyConfigured('DJANGO_MSAL_PRIMARY_TENANT_NAME is a required setting')
+
 # For multi-tenant app
-DJANGO_MSAL_AUTHORITY = getattr(settings, 'DJANGO_MSAL_AUTHORITY', 'https://login.microsoftonline.com/common')
-# For single tenant app DJANGO_MSAL_AUTHORITY = "https://login.microsoftonline.com/Enter_the_Tenant_Name_Here"
+# DJANGO_MSAL_AUTHORITY = getattr(settings, 'DJANGO_MSAL_AUTHORITY', 'https://login.microsoftonline.com/common')
+# For single tenant app
+DJANGO_MSAL_AUTHORITY = "https://login.microsoftonline.com/%s" % (DJANGO_MSAL_PRIMARY_TENANT_ID)
+
+DJANGO_MSAL_GRAPH_ENDPOINT = getattr(settings, 'DJANGO_MSAL_GRAPH_ENDPOINT', 'https://graph.microsoft.com/v1.0/users')
 
 DJANGO_MSAL_LOGIN_PATH = getattr(settings, 'DJANGO_MSAL_LOGIN_PATH', 'login/')
 DJANGO_MSAL_LANDING_PATH = getattr(settings, 'DJANGO_MSAL_LANDING_PATH', 'landing/')
@@ -45,14 +58,14 @@ DJANGO_MSAL_ENDPOINT = 'https://graph.microsoft.com/v1.0/users'  # This resource
 
 # You can find the proper permission names from this document
 # https://docs.microsoft.com/en-us/graph/permissions-reference
-DJANGO_MSAL_SCOPE = getattr(settings, 'DJANGO_MSAL_SCOPE', ["User.ReadBasic.All"])
+DJANGO_MSAL_SCOPE = getattr(settings, 'DJANGO_MSAL_SCOPE', [])
 
 # If DJANGO_MSAL_LOGOUT_OF_MS_ACCOUNT is True,
 #       a user will be logged out of their MS account when the logout of the Django app
 # If DJANGO_MSAL_LOGOUT_OF_MS_ACCOUNT is False,
 #       a user will not be logged out of their MS account.
 #       this means they will be able to log back into the Django app by hitting the Sign in with Microsoft button
-DJANGO_MSAL_LOGOUT_OF_MS_ACCOUNT = getattr(settings, 'DJANGO_MSAL_LOGOUT_OF_MS_ACCOUNT', True)
+DJANGO_MSAL_LOGOUT_OF_MS_ACCOUNT = getattr(settings, 'DJANGO_MSAL_LOGOUT_OF_MS_ACCOUNT', False)
 
 # If DJANGO_MSAL_RESTRICT_TENANTS is True:
 #       the user must login with an account from a Tenant that is active in the MicrosoftTenant table

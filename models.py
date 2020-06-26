@@ -12,7 +12,11 @@ class MicrosoftUser(models.Model):
     name = models.CharField("Name", max_length=40, blank=True, null=True)
 
     def __str__(self):
-        self.name
+        if self.name:
+            return self.name
+        else:
+            return '%s - not linked' % (self.user.username)
+
 
 @receiver(models.signals.post_save, sender=User)
 def create_microsoft_user(sender, instance, created, **kwargs):
