@@ -74,7 +74,7 @@ DJANGO_MSAL_LOGOUT_OF_MS_ACCOUNT = getattr(settings, 'DJANGO_MSAL_LOGOUT_OF_MS_A
 # Note: There is also a setting when registering the application in the Azure portal that
 #       determines what tenants are allowed when authenicateing users
 
-DJANGO_MSAL_RESTRICT_TENANTS = getattr(settings, 'DJANGO_MSAL_RESTRICT_TENANTS', False)
+DJANGO_MSAL_RESTRICT_TENANTS = getattr(settings, 'DJANGO_MSAL_RESTRICT_TENANTS', True)
 
 # In your Django settings, make sure to set LOGIN_URL to the align with DJANGO_MSAL_LOGIN_PATH
 # If going with defaults, this should go in settings.py: LOGIN_URL = '/login/'
