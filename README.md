@@ -64,5 +64,21 @@ admin/auth/user/<int>/password/
 
 ```
 
+### migrations and data setup
+The django_msal app has two intial migrations along with a management command that can be used to 
+
+```
+# Runs the first two migrations that setup the database and create new MicrosoftUsers for current Users
+python manage.py migrate
+```
+
+```
+# Management command that will attempt to link existing users with MS accounts based on email addresses.
+python manage.py link_ms_accounts
+```
+
+
+
+
 ### Overview
 django_msal creates a MicrosoftUser that is associated with the normal Django User model via a OneToOneField. It should handle custom user models via the AUTH\_USER\_MODEL setting. A signal is used to create a new MicrosoftUser whenever a Django User is created. A data migration is used to create MicrosoftUsers for any existing Users during initial setup.
