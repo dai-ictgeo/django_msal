@@ -198,14 +198,14 @@ def authorize(request):
                 # Email site admins about new user sign-in
                 from_email = conf.DJANGO_MSAL_FROM_EMAIL
                 ####################################################################
-                to_email = 'matt@langeman.net'
+                admin_emails = [a[1] for a in conf.DJANGO_MSAL_ADMINS]
                 subject = '%s - New Account Created' % (conf.DJANGO_MSAL_APP_NAME)
                 message = render_to_string('django_msal/new_account_created_email.html', {
                     'name': user.microsoftuser.name,
                     'preferred_username': user.microsoftuser.preferred_username,
                     'app_name': conf.DJANGO_MSAL_APP_NAME
                 })
-                send_mail(subject, "", from_email, [to_email],
+                send_mail(subject, "", from_email, admin_emails,
                             fail_silently=False, html_message=message)
                 logger.info('Sent email to admin about new account creation')
                 ####################################################################

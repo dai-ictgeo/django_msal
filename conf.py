@@ -90,6 +90,13 @@ if DJANGO_MSAL_SEND_NEW_ACCOUNT_EMAILS:
     except AttributeError:
         raise ImproperlyConfigured('DJANGO_MSAL_FROM_EMAIL or DEFAULT_FROM_EMAIL is a required setting')
 
+
+if DJANGO_MSAL_SEND_NEW_ACCOUNT_EMAILS:
+    try:
+        DJANGO_MSAL_ADMINS = getattr(settings, 'DJANGO_MSAL_ADMINS', settings.ADMINS)
+    except AttributeError:
+        raise ImproperlyConfigured('DJANGO_MSAL_ADMINS or ADMINS is a required setting')
+
 # In your Django settings, make sure to set LOGIN_URL to the align with DJANGO_MSAL_LOGIN_PATH
 # If going with defaults, this should go in settings.py: LOGIN_URL = '/login/'
 
