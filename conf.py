@@ -1,6 +1,12 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
+# Used in emails and for default login and langing pages
+try:
+    DJANGO_MSAL_APP_NAME = settings.DJANGO_MSAL_APP_NAME
+except AttributeError:
+    raise ImproperlyConfigured('DJANGO_MSAL_APP_NAME is a required setting')
+
 try:
     DJANGO_MSAL_CLIENT_ID = settings.DJANGO_MSAL_CLIENT_ID
 except AttributeError:
@@ -76,5 +82,14 @@ DJANGO_MSAL_LOGOUT_OF_MS_ACCOUNT = getattr(settings, 'DJANGO_MSAL_LOGOUT_OF_MS_A
 
 DJANGO_MSAL_RESTRICT_TENANTS = getattr(settings, 'DJANGO_MSAL_RESTRICT_TENANTS', True)
 
+DJANGO_MSAL_SEND_NEW_ACCOUNT_EMAILS = getattr(settings, 'DJANGO_MSAL_SEND_NEW_ACCOUNT_EMAILS', True)
+
+if DJANGO_MSAL_SEND_NEW_ACCOUNT_EMAILS:
+    try:
+        DJANGO_MSAL_FROM_EMAIL = getattr(settings, 'DJANGO_MSAL_FROM_EMAIL', settings.DEFAULT_FROM_EMAIL)
+    except AttributeError:
+        raise ImproperlyConfigured('DJANGO_MSAL_FROM_EMAIL or DEFAULT_FROM_EMAIL is a required setting')
+
 # In your Django settings, make sure to set LOGIN_URL to the align with DJANGO_MSAL_LOGIN_PATH
 # If going with defaults, this should go in settings.py: LOGIN_URL = '/login/'
+

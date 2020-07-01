@@ -1,12 +1,17 @@
-import uuid
+import logging
 import msal
+import uuid
 
 from django.contrib.auth import get_user_model, login as auth_login, logout as auth_logout, authenticate
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
+from django.core.mail import send_mail
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
+
 
 from .models import MicrosoftUser, MicrosoftTenant
 from .auth import MSALAuthBackend
@@ -14,11 +19,14 @@ from . import conf
 
 User = get_user_model()
 
+logger = logging.getLogger(__name__)
 
 @login_required(redirect_field_name=conf.DJANGO_MSAL_REDIRECT_FIELD_NAME)
 def landing(request):
     context = {
-        'name': request.user.microsoftuser.name
+        'name': request.user.microsoftuser.name,
+        'preferred_username': request.user.microsoftuser.preferred_username,
+        'app_name': conf.DJANGO_MSAL_APP_NAME,
     }
     return TemplateResponse(request, 'DJANGO_MSAL/landing.html', context=context)
 
@@ -56,11 +64,14 @@ def login(request):
     request.session['next_url'] = request.GET.get(conf.DJANGO_MSAL_REDIRECT_FIELD_NAME, '/%s' % conf.DJANGO_MSAL_LANDING_PATH)
 
     auth_url = _build_auth_url(scopes=conf.DJANGO_MSAL_SCOPE, state=request.session['state'])
+
     context = {
         'auth_url': auth_url,
         'version': msal.__version__,
-        'auth_error': request.session.get('auth_error', False)
+        'auth_error': request.session.get('auth_error', False),
+        'app_name': conf.DJANGO_MSAL_APP_NAME,
     }
+
     # We do not want to show the same auth error again. Delete auth_error session variable
     try:
         del request.session['auth_error']
@@ -148,6 +159,12 @@ def authorize(request):
             # The preferred_username from Microsoft is not guaranteed to be unique.
             # We need to create a username that is unique to Django User model
             preferred_username = id_token_claims.get('preferred_username')
+            user_email = None
+            try:
+                validate_email(preferred_username)
+                user_email = preferred_username
+            except ValidationError:
+                user_email = None
             name = id_token_claims.get('name')
             username = preferred_username
             username_exists = True
@@ -166,13 +183,45 @@ def authorize(request):
 
             # We will not be using this password, but the Django User model requires it
             random_password = BaseUserManager().make_random_password()
-
-            user = User.objects.create(username=username, password=random_password)
+            if user_email:
+                user = User.objects.create(username=username, password=random_password, email=user_email)
+            else:
+                user = User.objects.create(username=username, password=random_password)
             user.microsoftuser.oid = oid
             user.microsoftuser.tenant = tenant
             user.microsoftuser.name = name
             user.microsoftuser.preferred_username = preferred_username
             user.microsoftuser.save()
+            logging.info('Created a new User and Microsoft User %s' % (user.username))
+
+            if conf.DJANGO_MSAL_SEND_NEW_ACCOUNT_EMAILS:
+                # Email site admins about new user sign-in
+                from_email = conf.DJANGO_MSAL_FROM_EMAIL
+                ####################################################################
+                to_email = 'matt@langeman.net'
+                subject = '%s - New Account Created' % (conf.DJANGO_MSAL_APP_NAME)
+                message = render_to_string('django_msal/new_account_created.html', {
+                    'name': user.microsoftuser.name,
+                    'preferred_username': user.microsoftuser.preferred_username,
+                    'app_name': conf.DJANGO_MSAL_APP_NAME
+                })
+                send_mail(subject, "", from_email, [to_email],
+                            fail_silently=False, html_message=message)
+                logger.info('Sent email to admin about new account creation')
+                ####################################################################
+                # Email user about their new account if we have their email in the form of preferred_username
+                if user_email:
+                    to_email = user_email
+                    subject = 'Welcome to %s' % (conf.DJANGO_MSAL_APP_NAME)
+                    message = render_to_string('django_msal/new_user_email.html', {
+                        'name': user.microsoftuser.name,
+                        'preferred_username': user.microsoftuser.preferred_username,
+                        'app_name': conf.DJANGO_MSAL_APP_NAME
+                    })
+                    send_mail(subject, "", from_email, [to_email],
+                                fail_silently=False, html_message=message)
+                    logger.info('Sent welcome email to new user')
+                ####################################################################
 
         # We have a user that has been authorized by an Microsoft Tenant. Log them in
         auth_login(request, user, backend='django_msal.auth.MSALAuthBackend')

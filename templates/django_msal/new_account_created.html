@@ -1,0 +1,14 @@
+{%load i18n%}
+{% autoescape off %}
+{%trans 'Hello' %},
+<p>
+{% blocktrans %}
+A new user has signed into {{ app_name }} using their Microsoft account.
+You may need to add them to the appropriate group in order for them to have access to all functionality.
+</p>
+
+Name: {{ name }} <br/>
+Microsoft username: {{ preferred_username }}
+<br>
+{% endblocktrans %}
+{% endautoescape %}
