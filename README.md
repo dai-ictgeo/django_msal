@@ -21,6 +21,20 @@ Eventually this app will be put in pypi for easy installation. For now you can c
 
 ### Settings
 
+Add django_msal to installed apps and set the authentication backend.
+
+```
+INSTALLED_APPS = [
+    ...
+	'django_msal',
+]
+
+AUTHENTICATION_BACKENDS = (
+	'django_msal.auth.MSALAuthBackend',
+)
+
+```
+
 The configurable settings can be found in the [conf.py file](conf.py). You will need to override at least the following variables in your settings.
 
 ```
@@ -31,6 +45,7 @@ DJANGO_MSAL_CLIENT_ID
 DJANGO_MSAL_CLIENT_SECRET
 DJANGO_MSAL_REDIRECT_DOMAIN
 ```
+
 
 ### urls
 
