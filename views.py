@@ -200,7 +200,7 @@ def authorize(request):
                 ####################################################################
                 to_email = 'matt@langeman.net'
                 subject = '%s - New Account Created' % (conf.DJANGO_MSAL_APP_NAME)
-                message = render_to_string('django_msal/new_account_created.html', {
+                message = render_to_string('django_msal/new_account_created_email.html', {
                     'name': user.microsoftuser.name,
                     'preferred_username': user.microsoftuser.preferred_username,
                     'app_name': conf.DJANGO_MSAL_APP_NAME
@@ -213,7 +213,7 @@ def authorize(request):
                 if user_email:
                     to_email = user_email
                     subject = 'Welcome to %s' % (conf.DJANGO_MSAL_APP_NAME)
-                    message = render_to_string('django_msal/new_user_email.html', {
+                    message = render_to_string('django_msal/new_user_welcome_email.html', {
                         'name': user.microsoftuser.name,
                         'preferred_username': user.microsoftuser.preferred_username,
                         'app_name': conf.DJANGO_MSAL_APP_NAME
