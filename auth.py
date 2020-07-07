@@ -38,8 +38,6 @@ class MSALAuthBackend(ModelBackend):
     def login(self, request, user):
         # We have a user that has been authorized by an Microsoft Tenant. Log them in
         auth_login(request, user, backend='django_msal.auth.MSALAuthBackend')
-        cache = self._load_cache(request)
-        self._save_cache(request, cache)
 
 
     def validate_request(self, request):
@@ -73,10 +71,13 @@ class MSALAuthBackend(ModelBackend):
 
     def acquire_token_by_authorization_code(self, request):
         cache = self._load_cache(request)
-        return self._build_msal_app(cache=cache).acquire_token_by_authorization_code(
+        token_result =  self._build_msal_app(cache=cache).acquire_token_by_authorization_code(
             request.GET['code'],
             scopes=conf.DJANGO_MSAL_SCOPE,  # Misspelled scope would cause an HTTP 400 error here
             redirect_uri=conf.DJANGO_MSAL_ABSOLUTE_REDIRECT_PATH)
+        # We store cache in case we want to make more queries without need to get new token
+        self._save_cache(request, cache)
+        return token_result
 
 
     def validate_token_result(self, request, token_result):
