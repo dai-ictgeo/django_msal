@@ -30,7 +30,7 @@ class Command(BaseCommand):
         if not 'access_token' in token_result:
             raise Exception('Unable to get MSAL app token')
 
-        microsoftusers = MicrosoftUser.objects.filter(oid=None, user_id=116)
+        microsoftusers = MicrosoftUser.objects.filter(oid=None)
         for microsoftuser in microsoftusers:
             user = microsoftuser.user
             email = user.email

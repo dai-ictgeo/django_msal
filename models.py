@@ -8,7 +8,7 @@ class MicrosoftUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     oid = models.CharField("Object ID", max_length=40, blank=True, null=True, unique=True)
     tenant = models.ForeignKey('MicrosoftTenant', blank=True, null=True, on_delete=models.CASCADE)
-    preferred_username = models.CharField("Preferred Username", max_length=40, blank=True, null=True)
+    preferred_username = models.CharField("Preferred Username", max_length=254, blank=True, null=True)
     name = models.CharField("Name", max_length=40, blank=True, null=True)
 
     def __str__(self):
