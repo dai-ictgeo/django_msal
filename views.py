@@ -1,7 +1,7 @@
 import logging
 import uuid
 
-from django.contrib.auth import get_user_model, logout as auth_logout
+from django.contrib.auth import authenticate, get_user_model, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
@@ -46,8 +46,37 @@ def logout(request):
         )
     return redirect('login')
 
+def _authenticate_django_user(request):
+    # Someone is trying to login via Django user
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(username=username, password=password)
+    if not user or not user.is_active:
+        request.session['django_auth_error'] = {
+            'error': 'Authentication Error',
+            'message': 'There was a problem authenticating you for this application',
+        }
+        return False
+
+    if user.microsoftuser.oid:
+        request.session['django_auth_error'] = {
+            'error': 'Authentication Error',
+            'message': 'Please use the option to sign in with your Office 365 account.',
+        }
+        return False
+
+    auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    return True
+
 
 def login(request):
+    # If we allow Django users to login with username and password, it the form posts here
+    if conf.DJANGO_MSAL_ALLOW_DJANGO_USERS:
+        if request.POST:
+            if _authenticate_django_user(request):
+                next_url = request.session.get('next_url', '/%s' % conf.DJANGO_MSAL_LANDING_PATH)
+                return redirect(next_url)
+
     # MSAL uses the state parameter as a CSRF token to protect agains cross site scripting. Create unique id that will be returned by MSAL
     request.session['state'] = str(uuid.uuid4())
 
@@ -60,7 +89,9 @@ def login(request):
     context = {
         'auth_url': auth_url,
         'auth_error': request.session.get('auth_error', False),
+        'django_auth_error': request.session.get('django_auth_error', False),
         'app_name': conf.DJANGO_MSAL_APP_NAME,
+        'tenant_name': conf.DJANGO_MSAL_PRIMARY_TENANT_NAME,
     }
 
     # We do not want to show the same auth error again. Delete auth_error session variable
@@ -69,7 +100,15 @@ def login(request):
     except KeyError:
         pass
 
-    return TemplateResponse(request, 'DJANGO_MSAL/login.html', context=context)
+    try:
+        del request.session['django_auth_error']
+    except KeyError:
+        pass
+
+    if conf.DJANGO_MSAL_ALLOW_DJANGO_USERS:
+        return TemplateResponse(request, 'DJANGO_MSAL/login-with-django-option.html', context=context)
+    else:
+        return TemplateResponse(request, 'DJANGO_MSAL/login.html', context=context)
 
 def authorize(request):
     # The auth_error session variable is used to pass error information back to login page if an error occurs
