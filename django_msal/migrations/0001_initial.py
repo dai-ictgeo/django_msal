@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
                 ('oid', models.CharField(blank=True, max_length=40, null=True, unique=True, verbose_name='Object ID')),
-                ('preferred_username', models.CharField(blank=True, max_length=40, null=True, verbose_name='Preferred Username')),
+                ('preferred_username', models.CharField(blank=True, max_length=254, null=True, verbose_name='Preferred Username')),
                 ('name', models.CharField(blank=True, max_length=40, null=True, verbose_name='Name')),
                 ('tenant', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_msal.MicrosoftTenant')),
             ],
