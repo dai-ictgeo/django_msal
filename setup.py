@@ -4,14 +4,16 @@ import setuptools
 def read(f):
     return open(f, 'r', encoding='utf-8').read()
 
-def get_version():
+
+def get_version(package):
     """
     Return package version as listed in `__version__` in `init.py`.
     """
-    init_py = open('__init__.py').read()
+    init_py = open(os.path.join(package, '__init__.py')).read()
     return re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)
 
-version = get_version()
+
+version = get_version('django_msal')
 
 setuptools.setup(
     name='django_msal',
