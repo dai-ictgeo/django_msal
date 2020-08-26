@@ -20,7 +20,7 @@ def landing(request):
         'preferred_username': request.user.microsoftuser.preferred_username,
         'app_name': conf.DJANGO_MSAL_APP_NAME,
     }
-    return TemplateResponse(request, 'DJANGO_MSAL/landing.html', context=context)
+    return TemplateResponse(request, 'django_msal/landing.html', context=context)
 
 
 # We have choosen to remove some urls/views that are used by Django admin, such as change password, etc.
@@ -29,7 +29,7 @@ def password_area_removed(request, pk=None):
     context = {
 
     }
-    return TemplateResponse(request, 'DJANGO_MSAL/password_area_removed.html', context=context)
+    return TemplateResponse(request, 'django_msal/password_area_removed.html', context=context)
 
 
 def logout(request):
@@ -106,9 +106,9 @@ def login(request):
         pass
 
     if conf.DJANGO_MSAL_ALLOW_DJANGO_USERS:
-        return TemplateResponse(request, 'DJANGO_MSAL/login-with-django-option.html', context=context)
+        return TemplateResponse(request, 'django_msal/login-with-django-option.html', context=context)
     else:
-        return TemplateResponse(request, 'DJANGO_MSAL/login.html', context=context)
+        return TemplateResponse(request, 'django_msal/login.html', context=context)
 
 def authorize(request):
     # The auth_error session variable is used to pass error information back to login page if an error occurs
