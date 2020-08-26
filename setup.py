@@ -31,9 +31,7 @@ setuptools.setup(
                     ],
     python_requires=">=3.6",
     packages=setuptools.find_packages(),
-    package_data={
-        "django_msal": ["templates/ *.html"],
-    },
+    include_package_data=True,
     classifiers=[
         'Operating System :: OS Independent',
         'Programming Language :: Python',
