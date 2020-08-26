@@ -1,4 +1,4 @@
 include README.md
-recursive-include django_msal/templates *.html
+recursive-include templates *.html
 global-exclude __pycache__
 global-exclude *.py[co]
