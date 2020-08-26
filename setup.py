@@ -33,7 +33,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     package_data={
         "django_msal": ["templates/*.html"],
-    }
+    },
     classifiers=[
         'Operating System :: OS Independent',
         'Programming Language :: Python',
