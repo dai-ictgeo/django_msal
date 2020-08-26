@@ -32,7 +32,7 @@ setuptools.setup(
     python_requires=">=3.6",
     packages=setuptools.find_packages(),
     package_data={
-        "django_msal": ["templates/*.html"],
+        "django_msal": ["templates/ *.html"],
     },
     classifiers=[
         'Operating System :: OS Independent',
