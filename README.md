@@ -17,11 +17,11 @@ This is a package created to integrate Django applications with Microsoft Azure 
 You can current install this app using the following:
 
 ```
-django-msal @ git+https://github.com/dai-ictgeo/django_msal.git
+pip install git+https://github.com/dai-ictgeo/django_msal.git
 
 or 
 
-django-msal @ git+https://github.com/dai-ictgeo/django_msal.git@<ref>   # where <ref> is a branch, commmit or tag/version 
+pip install git+https://github.com/dai-ictgeo/django_msal.git@<ref>   # where <ref> is a branch, commmit or tag/version 
 
 ```
 
