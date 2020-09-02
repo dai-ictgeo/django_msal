@@ -14,10 +14,19 @@ This is a package created to integrate Django applications with Microsoft Azure 
 
 
 ### Get the package
-Eventually this app will be put in pypi for easy installation. For now you can clone the repo to someone outside of your project directory and then symnlink it into the project.
+You can current install this app using the following:
+
+```
+pip install git+https://github.com/dai-ictgeo/django_msal.git
+
+or 
+
+pip install git+https://github.com/dai-ictgeo/django_msal.git@<ref>   # where <ref> is a branch, commmit or tag/version 
+
+```
 
 
-##Configuration
+## Configuration
 
 The django_msal app can be configured for serveral different scenarios:
 
