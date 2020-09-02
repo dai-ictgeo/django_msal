@@ -46,22 +46,34 @@ def logout(request):
         )
     return redirect('login')
 
+def _is_microsoftuser(username, is_active=True):
+    try:
+        user = User.objects.get(username=username, is_active=is_active)
+    except:
+       return False
+    if user.microsoftuser.oid:
+        return True
+    return False
+
 def _authenticate_django_user(request):
+    user = None
     # Someone is trying to login via Django user
     username = request.POST['username']
     password = request.POST['password']
-    user = authenticate(username=username, password=password)
+
+    user = authenticate(request=request, username=username, password=password)
+
+    if _is_microsoftuser(username, is_active=True):
+        request.session['django_auth_error'] = {
+            'error': 'Authentication Error',
+            'message': 'Please use the option to sign in with Microsoft.',
+        }
+        return False
+
     if not user or not user.is_active:
         request.session['django_auth_error'] = {
             'error': 'Authentication Error',
             'message': 'There was a problem authenticating you for this application',
-        }
-        return False
-
-    if user.microsoftuser.oid:
-        request.session['django_auth_error'] = {
-            'error': 'Authentication Error',
-            'message': 'Please use the option to sign in with your Office 365 account.',
         }
         return False
 

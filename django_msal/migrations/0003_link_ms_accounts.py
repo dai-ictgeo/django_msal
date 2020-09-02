@@ -8,7 +8,7 @@ def link_ms_accounts(apps, schema_editor):
     call_command('link_ms_accounts')
 
 class Migration(migrations.Migration):
-
+    atomic = False
     dependencies = [
         ('django_msal', '0002_add_microsoftuser_to_existing_users'),
     ]

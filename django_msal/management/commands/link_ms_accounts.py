@@ -3,6 +3,7 @@ import requests
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
+from django.db import transaction
 from django_msal.models import MicrosoftUser, MicrosoftTenant
 from django_msal import conf
 
@@ -44,14 +45,18 @@ class Command(BaseCommand):
                     headers={'Authorization': 'Bearer ' + token_result['access_token']},
                 ).json()
                 if 'error' in result:
-                    print ('Email: %s - Error: %s' % (email, result['error']))
+                    print ('Email: %s - Error: %s' % (email, result['error']['message'][:50]))
                 else:
                     try:
-                        microsoftuser.oid = result['id']
-                        microsoftuser.preferred_username = result['userPrincipalName']
-                        microsoftuser.name = result['displayName']
-                        microsoftuser.tenant = tenant
-                        microsoftuser.save()
-                        print ('Email: %s - Saved new microsoft user' % (email))
+                        with transaction.atomic():
+                            microsoftuser.oid = result['id']
+                            microsoftuser.preferred_username = result['userPrincipalName']
+                            microsoftuser.name = result['displayName']
+                            microsoftuser.tenant = tenant
+                            microsoftuser.save()
+                            user.set_unusable_password()
+                            user.save(update_fields=["password"])
+                            print ('Email: %s - Saved new microsoft user and made password unusable' % (email))
+
                     except Exception as e:
                         print ('Email: %s - Error: %s' % (email, e))
